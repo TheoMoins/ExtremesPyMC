@@ -8,8 +8,8 @@ class GEV_Variable:
     def __init__(self):
         self.x = Symbol("x")
         self.mu = Symbol("mu")
-        self.sig = Symbol("sig")
-        self.gam = Symbol("gam")
+        self.sig = Symbol("sigma")
+        self.gam = Symbol("gamma")
 
     def eval_params(self, Mu=None, Sig=None, Gam=None):
         if Mu is not None:
@@ -21,8 +21,8 @@ class GEV_Variable:
 
     def reparameterize(self):
         self.mu = Symbol("mu")
-        self.sig = Symbol("sig")
-        self.gam = Symbol("gam")
+        self.sig = Symbol("sigma")
+        self.gam = Symbol("gamma")
 
     def get_pdf(self):
         if (type(self.gam) is int) and Eq(self.gam, 0):
