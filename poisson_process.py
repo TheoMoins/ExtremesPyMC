@@ -38,7 +38,7 @@ class NH_Poisson_process:
         self.sig = sig
         self.xi = xi
 
-        assert self.u >= self.mu
+        # assert self.u >= self.mu
         if self.xi < 0:
             assert self.u < self.mu - self.sig/self.xi
 
@@ -104,7 +104,7 @@ class NH_Poisson_process:
         :return: n_obs positions between u and the endpoint
         """
         scaled_sig = self.sig+self.xi*(self.u - self.mu)
-        return st.genpareto.rvs(c=self.xi, loc=self.mu, scale=scaled_sig, size=n_obs)
+        return st.genpareto.rvs(c=self.xi, loc=self.u, scale=scaled_sig, size=n_obs)
 
     def gen_time_events(self, n_obs):
         """
