@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats as st
+import matplotlib.pyplot as plt
 
 
 # class genpareto_trunc(st.rv_continuous):
@@ -30,7 +31,7 @@ import scipy.stats as st
 # pareto_trunc = genpareto_trunc(name='pareto_trunc')
 
 
-class NH_Poisson_process:
+class NHPoissonProcess:
     def __init__(self, mu, sig, xi, u, m):
         self.u = u
         self.m = m
@@ -116,3 +117,47 @@ class NH_Poisson_process:
         :return: n_obs time events between 0 and m
         """
         return np.sort(np.random.rand(n_obs)*self.m)
+
+    def plot_simulation(self, times, positions):
+        """
+        Plot the simulation of the NHPP and the QQ-plot
+        :param times: The time of events, typically obtained with gen_time_events
+        :param positions: The of events, typically obtained with gen_positions
+        :return: Nothing, just plot
+        """
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        ax.vlines(times, [0], positions)
+        ax.hlines(
+            self.u,
+            0.0,
+            self.m,
+            colors="r")
+        ax.vlines(
+            0,
+            self.u / max(positions),
+            1,
+            transform=ax.get_xaxis_transform(),
+            colors="r")
+
+        ax.vlines(
+            self.m,
+            self.u / max(positions),
+            1,
+            transform=ax.get_xaxis_transform(),
+            colors="r")
+
+        ax.set(
+            xlabel="Time",
+            ylabel="Position")
+
+        fig.suptitle("Simulation of the NHPP in $[0;m]$ x $[u ; +\infty[$ \n Number of generated points: "
+                     + str(len(positions)), fontsize=14)
+
+        plt.figure()
+        QQplot = st.probplot(positions, dist=st.genpareto(c=self.xi,
+                                                          loc=self.mu,
+                                                          scale=self.sig + self.xi * (self.u - self.mu)),
+                             fit=False, plot=plt)
+        plt.show()
+
