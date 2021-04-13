@@ -1,6 +1,7 @@
 import numpy as np
 import pymc3 as pm
 import theano.tensor as tt
+from densities import jeffreys_logp, jeffreys_orthogonal_logp
 
 EPS = 1e-20
 
@@ -15,8 +16,8 @@ def get_prior(text, variable):
             return pm.Flat(name=variable, testval=params[0])
         else:
             return pm.Flat(name=variable)
-    # Flat prior over the real positive line:
-    elif "HalfFlat" in text or ("Jeffreys" in text and variable == "sig"):
+    # Half flat prior, flat over the real positive line:
+    elif "HalfFlat" in text or ("Jeffreys" in text and variable in ["sig", "r", "nu"]):
         if params != "":
             return pm.HalfFlat(name=variable, testval=params[0])
         else:
@@ -44,27 +45,23 @@ def get_prior(text, variable):
         print("Unknown prior given as input")
 
 
-def jeffreys_logp(mu, sig, xi, u):
-    logp = (-1 - 3 / (2 * xi + EPS)) * tt.log((1 + (xi + EPS) * (u - mu) / sig))
-    logp += -2 * tt.log(sig)
-    logp += - tt.log(1 + xi) - 0.5 * tt.log(1 + 2 * xi + EPS)
-    return logp
-
-
 def need_potential(priors_name):
     for p in priors_name:
-        if "HalfFlat" in p:
+        if "HalfFlat" in p or "Jeffreys" in p:
             return True
     return False
 
 
-def get_potential(priors_name, var, u=None):
+def get_potential(priors_name, var, orthogonal_param=True, u=None):
     logp = 0
     for i, p in enumerate(priors_name):
         if "HalfFlat" in p:
             logp += -tt.log(var[i])
     if "Jeffreys" in priors_name[0]:
-        if u is None:
-            print("u is required to compute Jeffreys prior")
-        logp = jeffreys_logp(var[0], var[1], var[2], u)
+        if orthogonal_param:
+            logp = jeffreys_orthogonal_logp(var[0], var[1], var[2])
+        else:
+            if u is None:
+                print("u is required to compute Jeffreys prior")
+            logp = jeffreys_logp(var[0], var[1], var[2], u)
     return pm.Potential("prior", logp)

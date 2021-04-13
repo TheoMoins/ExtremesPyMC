@@ -1,0 +1,13 @@
+{
+  "name": "Metropolis with Jeffreys on orthogonal parameters",
+
+  "step_method": "Metropolis",
+  "niter": 5000,
+  "orthogonal_param": true,
+  "priors": {
+    "p1": "Jeffreys()",
+    "p2": "Jeffreys()",
+    "p3": "Jeffreys()"
+  },
+  "init_p1_by_u": true
+}

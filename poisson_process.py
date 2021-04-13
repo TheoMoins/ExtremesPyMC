@@ -3,34 +3,6 @@ import scipy.stats as st
 import matplotlib.pyplot as plt
 
 
-# class genpareto_trunc(st.rv_continuous):
-#     """
-#     Distribution used for the density of the positions of the points given the
-#     number of observations.
-#     """
-#     def _pdf(self, x, mu, sig, xi, u):
-#         if xi == 0:
-#             r = np.exp(-(u-mu)/sig)
-#             pdf = (1/sig*r)*np.exp(-(x-mu)/sig)
-#         else:
-#             r = (1 + xi * (u - mu)/sig)**(-1/xi)
-#             pdf = (1/sig*r)*(1 + xi * (x - mu)/sig)**(-1-1/xi)
-#         return pdf
-#
-#     def _argcheck(self, mu, sig, xi, u):
-#         return np.isfinite(xi)
-#
-#     def _get_support(self, mu, sig, xi, u):
-#         a = u
-#         b = np.inf
-#         if xi < 0:
-#             b = mu - sig/xi
-#         return a, b
-#
-#
-# pareto_trunc = genpareto_trunc(name='pareto_trunc')
-
-
 class NHPoissonProcess:
     def __init__(self, mu, sig, xi, u, m):
         self.u = u
@@ -41,7 +13,7 @@ class NHPoissonProcess:
 
         # assert self.u >= self.mu
         if self.xi < 0:
-            assert self.u < self.mu - self.sig/self.xi
+            assert self.u < self.mu - self.sig / self.xi
 
     def get_parameters(self):
         """
@@ -76,7 +48,7 @@ class NHPoissonProcess:
         if self.xi == 0:
             return self.m * np.exp(-(self.u - self.mu) / self.sig)
         else:
-            return self.m * (1 + self.xi * (self.u - self.mu)/self.sig)**(-1/self.xi)
+            return self.m * (1 + self.xi * (self.u - self.mu) / self.sig) ** (-1 / self.xi)
 
     def get_orthogonal_reparam(self):
         """
@@ -85,7 +57,7 @@ class NHPoissonProcess:
                  orthogonal version of sig
         """
         r = self.get_measure()
-        nu = (1 + self.xi)*(self.sig + self.xi*(self.u - self.mu))
+        nu = (1 + self.xi) * (self.sig + self.xi * (self.u - self.mu))
         return r, nu, self.xi
 
     def gen_number_points(self, n_samples=1):
@@ -104,7 +76,7 @@ class NHPoissonProcess:
         :param n_obs: Number of observations
         :return: n_obs positions between u and the endpoint
         """
-        scaled_sig = self.sig+self.xi*(self.u - self.mu)
+        scaled_sig = self.sig + self.xi * (self.u - self.mu)
         return st.genpareto.rvs(c=self.xi, loc=self.u, scale=scaled_sig, size=n_obs)
 
     def gen_time_events(self, n_obs):
@@ -116,7 +88,7 @@ class NHPoissonProcess:
         :param n_obs: Number of observations
         :return: n_obs time events between 0 and m
         """
-        return np.sort(np.random.rand(n_obs)*self.m)
+        return np.sort(np.random.rand(n_obs) * self.m)
 
     def plot_simulation(self, times, positions):
         """
@@ -125,8 +97,9 @@ class NHPoissonProcess:
         :param positions: The of events, typically obtained with gen_positions
         :return: Nothing, just plot
         """
-        fig, ax = plt.subplots(figsize=(10, 6))
-
+        fig = plt.figure(figsize=(18, 6))
+        ax = fig.add_subplot(121)
+        ax.set_title("Simulation of the NHPP in $[0;m]$ x $[u ; +\infty[$")
         ax.vlines(times, [0], positions)
         ax.hlines(
             self.u,
@@ -151,13 +124,60 @@ class NHPoissonProcess:
             xlabel="Time",
             ylabel="Position")
 
-        fig.suptitle("Simulation of the NHPP in $[0;m]$ x $[u ; +\infty[$ \n Number of generated points: "
+        fig.suptitle("Number of generated points: "
                      + str(len(positions)), fontsize=14)
 
-        plt.figure()
+        ax2 = fig.add_subplot(122)
         QQplot = st.probplot(positions, dist=st.genpareto(c=self.xi,
-                                                          loc=self.mu,
+                                                          loc=self.u,
                                                           scale=self.sig + self.xi * (self.u - self.mu)),
                              fit=False, plot=plt)
-        plt.show()
+        ax2.set_title("QQ-Plot of Poisson process simulations")
 
+    def get_param_m_update(self, m):
+        """
+        Return the value of mu and sigma corresponding to a scaling factor equal to m.
+        :param m: the scaling factor on which we want to express the value of mu and sigma
+        :return: mu_m and sigma_m
+        """
+        mu_m = self.mu - (self.sig/self.xi)(1 - (m/self.m)**(-self.xi))
+        sigma_m = self.sig*(m/self.m)**(-self.xi)
+        return mu_m, sigma_m
+
+    def get_original_m_param(self, mu, sig, m):
+        """
+        Return the value of mu and sigma corresponding to a scaling factor equal to self.m,
+        from given values of mu and sig and a given m
+        :param mu: mu_m parameter
+        :param sig: sigma_m parameter
+        :param m: the scaling factor on which mu and sigma are linked to
+        :return: mu_(self.m) and sigma_(self.m)
+        """
+        mu_2 = mu - (sig/self.xi)(1 - (self.m/m)**(-self.xi))
+        sigma_2 = sig*(self.m/m)**(-self.xi)
+        return mu_2, sigma_2
+
+    def get_param_from_orthogonal(self, r, nu):
+        """
+        Return the value of mu sigma corresponding to given (r, nu) from
+        the orthogonal parameterisation
+        :param r: first parameter
+        :param nu: second parameter
+        :return: parameters mu and sigma
+        """
+        mu = self.u - (nu/(self.xi*(1+self.xi)))*(1 - (r/self.m) ** self.xi)
+        sigma = (nu/(self.xi*(1+self.xi))) * (r/self.m) ** self.xi
+        return mu, sigma
+
+
+def sharkey_optimal_m(xi, n_obs):
+    """
+    Select a suitable value of M according to Sharkey and J. A. Tawn 2017.
+    :return: a value of m
+    """
+    l = (xi + 1) * np.log((2 * xi + 3) / (2 * xi + 1))
+    m1 = (1 + 2 * xi + l) / (3 + 2 * xi - l)
+    m2 = (2 * xi ** 2 + 13 * xi + 8) / (2 * xi ** 2 + 9 * xi + 8)
+
+    opt_M = round(n_obs * (m1 + m2) / 2)
+    return opt_M
