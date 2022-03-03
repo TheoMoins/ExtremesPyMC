@@ -3,8 +3,6 @@ import pymc3 as pm
 import theano.tensor as tt
 from densities import jeffreys_logp, jeffreys_orthogonal_logp
 
-EPS = 1e-20
-
 
 def get_prior(text, variable):
     params = text[text.find('(') + 1:text.find(')')]

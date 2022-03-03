@@ -20,7 +20,7 @@ poisson_config = "sharkey_poisson_config"
 poisson_params = Params(poisson_params_directory + poisson_config + ".json")
 
 mcmc_params_directory = "parameters/mcmc/"
-mcmc_configs = ["Config4.json"]
+mcmc_configs = ["Config5.json"]
 # mcmc_configs = []
 # for filename in os.listdir(mcmc_params_directory):
 #     if "json" in filename:
@@ -49,8 +49,8 @@ print("Number of generated points:", n_obs)
 print("Min: {:.3f}".format(np.min(obs)))
 print("Max: {:.3f}".format(np.max(obs)))
 
-quantiles = (1/n_obs, 1/(2*n_obs), 1/(3*n_obs))
-print("Estimation of quantiles 1/{}, 1/{} and 1/{} ".format(n_obs, 2*n_obs, 3*n_obs))
+quantiles = (1/lam_obs, 1/(2*lam_obs), 1/(3*lam_obs))
+print("Estimation of quantiles 1/{}, 1/{} and 1/{} ".format(int(lam_obs), 2*int(lam_obs), 3*int(lam_obs)))
 sig_tilde = pp_params[3]+pp_params[4]*(pp_params[0]-pp_params[2])
 real_q1 = gpd_quantile(prob=quantiles[0], mu=pp_params[0], sig=sig_tilde, xi=pp_params[4])
 real_q2 = gpd_quantile(prob=quantiles[1], mu=pp_params[0], sig=sig_tilde, xi=pp_params[4])
@@ -70,6 +70,8 @@ names_orthogonal = []
 for filename in mcmc_configs:
     print("\nConfig file: ", filename)
     mcmc_params = Params(mcmc_params_directory + filename)
+    print(mcmc_params.name)
+    print("")
 
     priors = [mcmc_params.priors["p1"],
               mcmc_params.priors["p2"],
@@ -113,17 +115,18 @@ for filename in mcmc_configs:
                real_value=[real_q1, real_q2, real_q3])
 
 plot_autocorr(traces=traces, labels=names, var_names=["mu_m", "sig_m", "xi"])
+plot_autocorr(traces=traces, labels=names, var_names=["q1r", "q2r", "q3r"])
 plot_ess(traces=traces, labels=names, var_names=["mu_m", "sig_m", "xi"])
 plot_ess(traces=traces, labels=names, var_names=["q1r", "q2r", "q3r"])
-# plot_densities(traces=traces_canonical, labels=names_canonical, var_names=["mu_m", "sig_m", "xi"])
+# plot_densities(traces=traces, labels=names, var_names=["mu_m", "sig_m", "xi"])
 
 if traces_orthogonal:
     plot_autocorr(traces=traces_orthogonal, labels=names_orthogonal, var_names=["r", "nu", "xi"])
     plot_ess(traces=traces_orthogonal, labels=names_orthogonal, var_names=["r", "nu", "xi"])
     # plot_densities(traces=traces_orthogonal, labels=names_orthogonal, var_names=["r", "nu", "xi"])
 
-# figs = [plt.figure(n) for n in plt.get_fignums()]
-# for i, fig in enumerate(figs):
-#     fig.savefig("Figures/{}/Figure{}.pdf".format(poisson_config, i + 1))
+figs = [plt.figure(n) for n in plt.get_fignums()]
+for i, fig in enumerate(figs):
+    fig.savefig("Figures/{}/Figure{}.pdf".format(poisson_config, i + 1))
 plt.show()
 print("Done!")

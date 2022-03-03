@@ -6,7 +6,13 @@ from priors import get_prior, need_potential, get_potential
 from densities import gpd_logp, gpd_quantile
 from poisson_process import sharkey_optimal_m
 
-EPS = 1e-20
+from densities import EPS
+
+import logging
+logger = logging.getLogger("pymc3")
+# The different level of output to dismiss are:
+# INFO, WARNING, ERROR, OR CRITICAL
+logger.setLevel(logging.CRITICAL)
 
 
 class PoissonMCMC:
@@ -109,7 +115,12 @@ class PoissonMCMC:
             step = get_step(self.step_method)
 
             # SAMPLING
-            trace = pm.sample(self.niter, step, return_inferencedata=True)
+            trace = pm.sample(draws=self.niter,
+                              step=step,
+                              tune=1000,
+                              discard_tuned_samples=False,
+                              return_inferencedata=True,
+                              progressbar=False)
         return trace
 
     def update_m(self, update_arg, xi=None):

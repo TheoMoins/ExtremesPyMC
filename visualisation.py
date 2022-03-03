@@ -6,6 +6,7 @@ import arviz as az
 
 def plot_trace(trace, var_names, title, real_value=None):
     chain_prop = {"color": ['lightseagreen', 'lightsalmon', 'goldenrod', 'yellowgreen']}
+    # plot_kwargs = {"bw": "scott"}
     if real_value is not None:
         lines = [(var_names[0], {}, [real_value[0]]),
                  (var_names[1], {}, [real_value[1]]),
@@ -13,7 +14,8 @@ def plot_trace(trace, var_names, title, real_value=None):
         az.plot_trace(trace, var_names=var_names, chain_prop=chain_prop, combined=True,
                       lines=lines, rug=True)
     else:
-        az.plot_trace(trace, var_names=var_names, chain_prop=chain_prop, combined=True, rug=True)
+        az.plot_trace(trace, var_names=var_names, chain_prop=chain_prop, combined=True,
+                      rug=True)
     plt.suptitle(title, fontsize=16)
 
 
@@ -52,6 +54,8 @@ def plot_densities(traces, labels, var_names):
                     data_labels=labels,
                     var_names=var_names,
                     hdi_prob=0.99,
+                    bw="scott",
                     shade=0.1)
     plt.suptitle("Posterior distributions", fontsize=18)
+
 

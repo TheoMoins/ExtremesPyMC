@@ -4,7 +4,7 @@ import theano.tensor as tt
 
 from pymc3.distributions.dist_math import bound
 
-EPS = 1e-20
+EPS = 0
 
 
 def jeffreys_logp(mu, sig, xi, u):

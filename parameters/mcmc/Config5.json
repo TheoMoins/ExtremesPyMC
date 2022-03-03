@@ -1,14 +1,14 @@
 {
-  "name": "Metropolis with Flat Prior on classical parameters",
+  "name": "Jeffreys prior on orthogonal parameters",
 
-  "update_m": false,
+  "update_m": "",
   "step_method": "Metropolis",
-  "niter": 5000,
-  "orthogonal_param": false,
+  "niter": 2000,
+  "orthogonal_param": true,
   "priors": {
-    "p1": "Flat(u)",
-    "p2": "HalfFlat()",
-    "p3": "Flat()"
+    "p1": "Jeffreys(u)",
+    "p2": "Jeffreys()",
+    "p3": "Jeffreys()"
   },
   "init_p1_by_u": true
 }
