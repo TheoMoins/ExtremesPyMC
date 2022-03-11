@@ -125,8 +125,8 @@ if traces_orthogonal:
     plot_ess(traces=traces_orthogonal, labels=names_orthogonal, var_names=["r", "nu", "xi"])
     # plot_densities(traces=traces_orthogonal, labels=names_orthogonal, var_names=["r", "nu", "xi"])
 
-figs = [plt.figure(n) for n in plt.get_fignums()]
-for i, fig in enumerate(figs):
-    fig.savefig("Figures/{}/Figure{}.pdf".format(poisson_config, i + 1))
-plt.show()
+# figs = [plt.figure(n) for n in plt.get_fignums()]
+# for i, fig in enumerate(figs):
+#     fig.savefig("Figures/{}/Figure{}.pdf".format(poisson_config, i + 1))
+# plt.show()
 print("Done!")

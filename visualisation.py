@@ -12,10 +12,10 @@ def plot_trace(trace, var_names, title, real_value=None):
                  (var_names[1], {}, [real_value[1]]),
                  (var_names[2], {}, [real_value[2]])]
         az.plot_trace(trace, var_names=var_names, chain_prop=chain_prop, combined=True,
-                      lines=lines, rug=True)
+                      lines=lines, rug=False)
     else:
         az.plot_trace(trace, var_names=var_names, chain_prop=chain_prop, combined=True,
-                      rug=True)
+                      rug=False)
     plt.suptitle(title, fontsize=16)
 
 
