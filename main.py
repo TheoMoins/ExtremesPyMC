@@ -3,11 +3,11 @@ import os
 import matplotlib.pyplot as plt
 import arviz as az
 
-from poisson_process import NHPoissonProcess
-from mcmc import PoissonMCMC
-from visualisation import plot_trace, plot_densities, plot_autocorr, plot_ess
+from src.poisson_process import NHPoissonProcess
+from src.mcmc import PoissonMCMC
+from src.visualisation import plot_trace, plot_autocorr, plot_ess
 from parameters.params import Params
-from densities import gpd_quantile
+from src.densities import gpd_quantile
 
 # Parameters loading
 

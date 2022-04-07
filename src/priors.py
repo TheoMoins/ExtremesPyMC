@@ -15,30 +15,33 @@ def get_prior(text, variable):
         else:
             return pm.Flat(name=variable)
     # Half flat prior, flat over the real positive line:
-    elif "HalfFlat" in text or ("Jeffreys" in text and variable in ["sig", "r", "nu"]):
-        if params != "":
-            return pm.HalfFlat(name=variable, testval=params[0])
+    elif "HalfFlat" in text or ("Jeffreys" in text and variable in ["sig", "r", "nu", "xi"]):
+        lower_bound = 0
+        if "Jeffreys" in text and variable == "xi":
+            lower_bound = -0.5
+        elif params != "":
+            lower_bound = params[0]
+        TruncFlat = pm.Bound(pm.Flat, lower=lower_bound)
+
+        if len(params) > 1:
+            return TruncFlat(name=variable, testval=params[1])
         else:
-            return pm.HalfFlat(name=variable)
+            return TruncFlat(name=variable)
     # Truncated normal prior for real positive values:
     elif "HalfNormal" in text:
-        if len(params) > 1:
+        if len(params) == 2:
             return pm.HalfNormal(name=variable, sigma=params[0], testval=params[1])
-        else:
+        elif len(params) == 1:
             return pm.HalfNormal(name=variable, sigma=params[0])
+        else:
+            TruncNorm = pm.Bound(pm.Normal, lower=params[0])
+            return TruncNorm(name=variable, sigma=params[1], testval=params[2])
     # Normal prior:
     elif "Norm" in text:
         if len(params) == 3:
             return pm.Normal(name=variable, mu=params[0], sigma=params[1], testval=params[2])
         else:
             return pm.Normal(name=variable, mu=params[0], sigma=params[1])
-    # Flat prior in [-1/2 ; +oo[:
-    elif "Jeffreys" in text and variable == "xi":
-        TruncFlat = pm.Bound(pm.Flat, lower=-0.5)
-        if params != "":
-            return TruncFlat(name="xi", testval=params[0])
-        else:
-            return TruncFlat(name="xi")
     else:
         print("Unknown prior given as input")
 

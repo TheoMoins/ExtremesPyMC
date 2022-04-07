@@ -1,7 +1,8 @@
-import numpy as np
 import pymc3 as pm
 import theano.tensor as tt
+import scipy as ss
 
+from pymc3.distributions import draw_values, generate_samples
 from priors import get_prior, need_potential, get_potential
 from densities import gpd_logp, gpd_quantile
 from poisson_process import sharkey_optimal_m
@@ -9,6 +10,7 @@ from poisson_process import sharkey_optimal_m
 from densities import EPS
 
 import logging
+
 logger = logging.getLogger("pymc3")
 # The different level of output to dismiss are:
 # INFO, WARNING, ERROR, OR CRITICAL
@@ -33,9 +35,10 @@ class PoissonMCMC:
         self.q3 = quantiles[2]
 
         self.orthogonal_param = orthogonal_param
+        self.model = pm.Model()
 
     def run(self, verbose=False):
-        with pm.Model() as model:
+        with self.model:
 
             def get_step(text):
                 if text[0:4] == "Metr":
@@ -56,9 +59,15 @@ class PoissonMCMC:
                 # LIKELIHOOD DEFINITION (Poisson + GPD)
                 n = pm.Poisson(name="n", mu=r, observed=self.n_obs)
 
-                sig = nu/(1+xi)
+                sig = nu / (1 + xi)
+
+                def my_random_method(point=None, size=None):
+                    sig_random, xi_random = draw_values([sig, xi], point=point, size=size)
+                    return generate_samples(ss.stats.genpareto.rvs, c=xi_random, loc=self.u, scale=sig_random,
+                                            size=size)
+
                 gpd = pm.DensityDist('gpd', lambda value: gpd_logp(value=value, mu=self.u, sig=sig, xi=xi),
-                                     observed=self.obs)
+                                     observed=self.obs, random=my_random_method)
 
                 if verbose:
                     print(tt.printing.Print("r")(r))
@@ -81,8 +90,14 @@ class PoissonMCMC:
                 n = pm.Poisson(name="n", mu=lam, observed=self.n_obs)
 
                 sig_tilde = sig + xi * (self.u - mu)
+
+                def my_random_method(point=None, size=None):
+                    sig_random, xi_random = draw_values([sig_tilde, xi], point=point, size=size)
+                    return generate_samples(ss.stats.genpareto.rvs, c=xi_random, loc=self.u, scale=sig_random,
+                                            size=size)
+
                 gpd = pm.DensityDist('gpd', lambda value: gpd_logp(value=value, mu=self.u, sig=sig_tilde, xi=xi),
-                                     observed=self.obs)
+                                     observed=self.obs, random=my_random_method)
 
                 if verbose:
                     print(tt.printing.Print("mu")(mu))
@@ -92,24 +107,26 @@ class PoissonMCMC:
 
             if not self.orthogonal_param:
                 if self.original_m != self.m:
-                    mu_m = pm.Deterministic("mu_m", mu - (sig/(xi+EPS)) * (1 - (self.original_m/self.m)**(-(xi+EPS))))
-                    sig_m = pm.Deterministic("sig_m", sig*(self.original_m/self.m)**(-xi))
+                    mu_m = pm.Deterministic("mu_m",
+                                            mu - (sig / (xi + EPS)) * (1 - (self.original_m / self.m) ** (-(xi + EPS))))
+                    sig_m = pm.Deterministic("sig_m", sig * (self.original_m / self.m) ** (-xi))
                 else:
                     mu_m = pm.Deterministic("mu_m", mu)
                     sig_m = pm.Deterministic("sig_m", sig)
             else:
-                mu_m = pm.Deterministic("mu_m", self.u - (nu/((xi+EPS)*(1+xi)))*(1 - (r/self.original_m) ** (xi+EPS)))
-                sig_m = pm.Deterministic("sig_m", (nu/(1+xi)) * (r/self.original_m) ** (xi+EPS))
+                mu_m = pm.Deterministic("mu_m", self.u - (nu / ((xi + EPS) * (1 + xi))) * (
+                            1 - (r / self.original_m) ** (xi + EPS)))
+                sig_m = pm.Deterministic("sig_m", (nu / (1 + xi)) * (r / self.original_m) ** (xi + EPS))
 
             q1r = pm.Deterministic("q1r",
-                                   gpd_quantile(prob=self.q1, mu=self.u, sig=sig_m+xi*(self.u-mu_m), xi=xi))
+                                   gpd_quantile(prob=self.q1, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))
             q2r = pm.Deterministic("q2r",
                                    gpd_quantile(prob=self.q2, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))
             q3r = pm.Deterministic("q3r",
                                    gpd_quantile(prob=self.q3, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))
 
             if verbose:
-                print(model.check_test_point())
+                print(self.model.check_test_point())
 
             # STEP METHOD
             step = get_step(self.step_method)
@@ -130,4 +147,12 @@ class PoissonMCMC:
             self.m = sharkey_optimal_m(xi=xi, n_obs=self.n_obs)
         else:
             print("The value of m given is not understood, try \"n_obs\" or \"sharkey\".")
+
+    def prior_predictive_check(self, nsamples):
+        with self.model:
+            return pm.sample_prior_predictive(samples=nsamples)
+
+    def posterior_predictive_check(self, trace):
+        with self.model:
+            return pm.sample_posterior_predictive(trace)
 
