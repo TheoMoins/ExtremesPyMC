@@ -1,7 +1,8 @@
 import numpy as np
 import pymc3 as pm
 import theano.tensor as tt
-from densities import jeffreys_logp, jeffreys_orthogonal_logp
+
+from src.densities import jeffreys_logp, jeffreys_orthogonal_logp
 
 
 def get_prior(text, variable):

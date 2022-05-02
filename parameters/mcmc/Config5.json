@@ -2,8 +2,8 @@
   "name": "Jeffreys prior on orthogonal parameters",
 
   "update_m": "",
-  "step_method": "Metropolis",
-  "niter": 2000,
+  "step_method": "NUTS",
+  "niter": 500,
   "orthogonal_param": true,
   "priors": {
     "p1": "Jeffreys()",

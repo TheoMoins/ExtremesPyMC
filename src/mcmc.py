@@ -3,11 +3,11 @@ import theano.tensor as tt
 import scipy as ss
 
 from pymc3.distributions import draw_values, generate_samples
-from priors import get_prior, need_potential, get_potential
-from densities import gpd_logp, gpd_quantile
-from poisson_process import sharkey_optimal_m
+from src.priors import get_prior, need_potential, get_potential
+from src.densities import gpd_logp, gpd_quantile
+from src.poisson_process import sharkey_optimal_m
 
-from densities import EPS
+from src.densities import EPS
 
 import logging
 

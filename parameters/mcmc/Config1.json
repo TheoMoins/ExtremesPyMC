@@ -2,8 +2,8 @@
   "name": "Flat Prior on classical parameters with initial m",
 
   "update_m": "",
-  "step_method": "Metropolis",
-  "niter": 2000,
+  "step_method": "NUTS",
+  "niter": 500,
   "orthogonal_param": false,
   "priors": {
     "p1": "Flat(u)",

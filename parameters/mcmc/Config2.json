@@ -2,8 +2,8 @@
   "name": "Flat Prior on classical parameters with m=n",
 
   "update_m": "n_obs",
-  "step_method": "Metropolis",
-  "niter": 2000,
+  "step_method": "NUTS",
+  "niter": 500,
   "orthogonal_param": false,
   "priors": {
     "p1": "Flat(u)",
