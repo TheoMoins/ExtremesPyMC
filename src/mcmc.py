@@ -16,6 +16,14 @@ logger = logging.getLogger("pymc3")
 # INFO, WARNING, ERROR, OR CRITICAL
 logger.setLevel(logging.CRITICAL)
 
+def get_step(text):
+    if text[0:4] == "Metr":
+        return pm.Metropolis()
+    elif text[0:4] == "NUTS":
+        return pm.NUTS()
+    else:
+        print("Unknown step method given as input")
+
 
 class PoissonMCMC:
     def __init__(self, priors, step_method, niter, obs, u, m, quantiles, orthogonal_param=True):
@@ -37,27 +45,51 @@ class PoissonMCMC:
         self.orthogonal_param = orthogonal_param
         self.model = pm.Model()
 
+    def define_prior(self):
+        with self.model:
+
+            if self.orthogonal_param:
+
+                nu = get_prior(self.priors[0], "nu")
+                xi = get_prior(self.priors[1], "xi")
+                var_list = [nu, xi]
+                if len(self.priors) == 3:
+                    r = get_prior(self.priors[2], "r")
+                    return r, nu, xi
+                return nu, xi 
+            
+            else:
+
+                sig = get_prior(self.priors[0], "sig")
+                xi = get_prior(self.priors[1], "xi")
+                if len(self.priors) == 3:
+                    mu = get_prior(self.priors[0], "mu")
+                    return mu, sig, xi
+                return sig, xi 
+
+
+
+
     def run(self, verbose=False):
         with self.model:
 
-            def get_step(text):
-                if text[0:4] == "Metr":
-                    return pm.Metropolis()
-                elif text[0:4] == "NUTS":
-                    return pm.NUTS()
-                else:
-                    print("Unknown step method given as input")
-
             if self.orthogonal_param:
                 # PRIOR DEFINITION
-                r = get_prior(self.priors[0], "r")
-                nu = get_prior(self.priors[1], "nu")
-                xi = get_prior(self.priors[2], "xi")
+                if len(self.priors) == 3:
+                    r, nu, xi = self.define_prior()
+                else:
+                    nu, xi = self.define_prior()
+                
+                var_list = [nu, xi]
+                if len(self.priors) == 3:
+                    var_list.append(r)
                 if need_potential(self.priors):
-                    prior = get_potential(self.priors, var=[r, nu, xi], orthogonal_param=True, u=self.u)
+                    prior = get_potential(self.priors, var=var_list, orthogonal_param=True, u=self.u)
+
 
                 # LIKELIHOOD DEFINITION (Poisson + GPD)
-                n = pm.Poisson(name="n", mu=r, observed=self.n_obs)
+                if len(self.priors) == 3:
+                    n = pm.Poisson(name="n", mu=r, observed=self.n_obs)
 
                 sig = nu / (1 + xi)
 
@@ -70,26 +102,35 @@ class PoissonMCMC:
                                      observed=self.obs, random=my_random_method)
 
                 if verbose:
-                    print(tt.printing.Print("r")(r))
+                    # print(tt.printing.Print("r")(r))
                     print(tt.printing.Print("nu")(nu))
                     print(tt.printing.Print("xi")(xi))
                     print(tt.printing.Print("prior")(prior))
 
             else:
                 # PRIOR DEFINITION
-                mu = get_prior(self.priors[0], "mu")
-                sig = get_prior(self.priors[1], "sig")
-                xi = get_prior(self.priors[2], "xi")
+                if len(self.priors) == 3:
+                    mu, sig, xi = self.define_prior()
+                else:
+                    sig, xi = self.define_prior()
+                
+                var_list = [sig, xi]
+                if len(self.priors) == 3:
+                    var_list.append(mu)
                 if need_potential(self.priors):
-                    prior = get_potential(self.priors, var=[mu, sig, xi], orthogonal_param=False, u=self.u)
+                    prior = get_potential(self.priors, var=var_list, orthogonal_param=False, u=self.u)
 
                 # LIKELIHOOD DEFINITION (Poisson + GPD)
-                lam_value = self.m * tt.nnet.relu((1 + (xi + EPS) * (self.u - mu) / sig)) ** (-1 / (xi + EPS))
-                lam = pm.Deterministic('lam', lam_value)
+                if len(self.priors) == 3:
+                    lam_value = self.m * tt.nnet.relu((1 + (xi + EPS) * (self.u - mu) / sig)) ** (-1 / (xi + EPS))
+                    lam = pm.Deterministic('lam', lam_value)
 
-                n = pm.Poisson(name="n", mu=lam, observed=self.n_obs)
+                    n = pm.Poisson(name="n", mu=lam, observed=self.n_obs)
 
-                sig_tilde = sig + xi * (self.u - mu)
+                    sig_tilde = sig + xi * (self.u - mu)
+                
+                else: 
+                    sig_tilde = sig
 
                 def my_random_method(point=None, size=None):
                     sig_random, xi_random = draw_values([sig_tilde, xi], point=point, size=size)
@@ -106,17 +147,25 @@ class PoissonMCMC:
                     print(tt.printing.Print("lam")(lam))
 
             if not self.orthogonal_param:
-                if self.original_m != self.m:
-                    mu_m = pm.Deterministic("mu_m",
-                                            mu - (sig / (xi + EPS)) * (1 - (self.original_m / self.m) ** (-(xi + EPS))))
-                    sig_m = pm.Deterministic("sig_m", sig * (self.original_m / self.m) ** (-xi))
+                if len(self.priors) == 3:
+                    if self.original_m != self.m:
+                        mu_m = pm.Deterministic("mu_m",
+                                                mu - (sig / (xi + EPS)) * (1 - (self.original_m / self.m) ** (-(xi + EPS))))
+                        sig_m = pm.Deterministic("sig_m", sig * (self.original_m / self.m) ** (-xi))
+                    else:
+                        mu_m = pm.Deterministic("mu_m", mu)
+                        sig_m = pm.Deterministic("sig_m", sig)
                 else:
-                    mu_m = pm.Deterministic("mu_m", mu)
+                    mu_m = self.u
                     sig_m = pm.Deterministic("sig_m", sig)
             else:
-                mu_m = pm.Deterministic("mu_m", self.u - (nu / ((xi + EPS) * (1 + xi))) * (
-                            1 - (r / self.original_m) ** (xi + EPS)))
-                sig_m = pm.Deterministic("sig_m", (nu / (1 + xi)) * (r / self.original_m) ** (xi + EPS))
+                if len(self.priors) == 3:
+                    mu_m = pm.Deterministic("mu_m", self.u - (nu / ((xi + EPS) * (1 + xi))) * (
+                                1 - (r / self.original_m) ** (xi + EPS)))
+                    sig_m = pm.Deterministic("sig_m", (nu / (1 + xi)) * (r / self.original_m) ** (xi + EPS))
+                else:
+                    mu_m = self.u
+                    sig_m = pm.Deterministic("sig_m", (nu / (1 + xi)) )
 
             q1r = pm.Deterministic("q1r",
                                    gpd_quantile(prob=self.q1, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))

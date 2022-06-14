@@ -2,7 +2,7 @@ import numpy as np
 import pymc3 as pm
 import theano.tensor as tt
 
-from src.densities import jeffreys_logp, jeffreys_orthogonal_logp
+from src.densities import jeffreys_gpd_logp, jeffreys_logp, jeffreys_orthogonal_gpd_logp, jeffreys_orthogonal_logp
 
 
 def get_prior(text, variable):
@@ -61,9 +61,16 @@ def get_potential(priors_name, var, orthogonal_param=True, u=None):
             logp += -tt.log(var[i])
     if "Jeffreys" in priors_name[0]:
         if orthogonal_param:
-            logp = jeffreys_orthogonal_logp(var[0], var[1], var[2])
+            if len(priors_name) == 3:
+                logp = jeffreys_orthogonal_logp(var[2], var[0], var[1])
+            else:
+                logp = jeffreys_orthogonal_gpd_logp(var[0], var[1])
         else:
-            if u is None:
-                print("u is required to compute Jeffreys prior")
-            logp = jeffreys_logp(var[0], var[1], var[2], u)
+            if len(priors_name) == 3:
+                if u is None:
+                    print("u is required to compute Jeffreys prior")
+                logp = jeffreys_logp(var[2], var[0], var[1], u)
+            else:
+                logp = jeffreys_gpd_logp(var[0], var[1])
     return pm.Potential("prior", logp)
+

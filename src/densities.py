@@ -19,6 +19,12 @@ def jeffreys_orthogonal_logp(r, nu, xi):
     logp += -tt.log(nu) - tt.log(1 + xi) - 0.5 * tt.log(1 + 2 * xi + EPS)
     return logp
 
+def jeffreys_gpd_logp(sig, xi):
+    return - tt.log(sig) - tt.log(1 + xi) - 0.5 * tt.log(1 + 2 * xi + EPS)
+
+
+def jeffreys_orthogonal_gpd_logp(nu, xi):
+    return -tt.log(nu) - tt.log(1 + xi) - 0.5 * tt.log(1 + 2 * xi + EPS)
 
 def gpd_logp(value, mu, sig, xi):
     scaled = (value - mu) / sig

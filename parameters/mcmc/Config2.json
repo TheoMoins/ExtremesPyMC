@@ -6,9 +6,9 @@
   "niter": 500,
   "orthogonal_param": false,
   "priors": {
-    "p1": "Flat(u)",
-    "p2": "HalfFlat()",
-    "p3": "Flat(0.01)"
+    "p1": "HalfFlat()",
+    "p2": "Flat(0.01)",
+    "p3": "Flat(u)"
   },
   "init_p1_by_u": true
 }

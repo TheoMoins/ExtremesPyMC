@@ -1,14 +1,14 @@
 {
-  "name": "Flat Prior on orthogonal parameters",
+  "name": "Orthogonal param.",
 
   "update_m": "",
-  "step_method": "NUTS",
-  "niter": 500,
+  "step_method": "Metropolis",
+  "niter": 2000,
   "orthogonal_param": true,
   "priors": {
-    "p1": "HalfFlat(0,u)",
-    "p2": "HalfFlat()",
-    "p3": "Flat(0.01)"
+    "p1": "Jeffreys()",
+    "p2": "Jeffreys()",
+    "p3": "Jeffreys()"
   },
   "init_p1_by_u": true
 }

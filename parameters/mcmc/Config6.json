@@ -6,9 +6,9 @@
   "niter": 500,
   "orthogonal_param": true,
   "priors": {
-    "p1": "HalfNormal(100)",
-    "p2": "HalfNormal(10)",
-    "p3": "HalfNormal(-1, 1, 0.01)"
+    "p1": "HalfNormal(10)",
+    "p2": "HalfNormal(-1, 1, 0.01)",
+    "p3": "HalfNormal(100)"
   },
   "init_p1_by_u": true
 }
