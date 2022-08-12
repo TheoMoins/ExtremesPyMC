@@ -1,0 +1,14 @@
+{
+  "name": "Flat Prior on classical parameters with m=n",
+
+  "update_m": true,
+  "step_method": "Metropolis",
+  "niter": 10000,
+  "orthogonal_param": false,
+  "priors": {
+    "p1": "Flat(u)",
+    "p2": "HalfFlat()",
+    "p3": "Flat()"
+  },
+  "init_p1_by_u": true
+}

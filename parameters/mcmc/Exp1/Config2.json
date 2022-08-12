@@ -1,12 +1,12 @@
 {
-  "name": "Orthogonal param.",
+  "name": "Jeffreys on orthogonal parameters",
 
-  "update_m": "",
+  "update_m": false,
   "step_method": "Metropolis",
-  "niter": 2000,
+  "niter": 10000,
   "orthogonal_param": true,
   "priors": {
-    "p1": "Jeffreys()",
+    "p1": "Jeffreys(u)",
     "p2": "Jeffreys()",
     "p3": "Jeffreys()"
   },

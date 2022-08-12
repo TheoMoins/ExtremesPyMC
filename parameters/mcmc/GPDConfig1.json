@@ -1,14 +1,13 @@
 {
-  "name": "Original param.",
+  "name": "GPD original param.",
 
   "update_m": "",
   "step_method": "Metropolis",
-  "niter": 2000,
+  "niter": 1000,
   "orthogonal_param": false,
   "priors": {
     "p1": "Jeffreys()",
-    "p2": "Jeffreys()",
-    "p3": "Jeffreys()"
+    "p2": "Jeffreys()"
   },
   "init_p1_by_u": true
 }

@@ -1,14 +1,14 @@
 {
-  "name": "Vague Prior on orthogonal parameters",
+  "name": "Original param.",
 
   "update_m": "",
   "step_method": "NUTS",
   "niter": 500,
-  "orthogonal_param": true,
+  "orthogonal_param": false,
   "priors": {
-    "p1": "HalfNormal(10)",
-    "p2": "HalfNormal(-1, 1, 0.01)",
-    "p3": "HalfNormal(100)"
+    "p1": "Jeffreys()",
+    "p2": "Jeffreys()",
+    "p3": "Jeffreys()"
   },
   "init_p1_by_u": true
 }

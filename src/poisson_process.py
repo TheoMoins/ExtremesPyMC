@@ -2,6 +2,8 @@ import numpy as np
 import scipy.stats as st
 import matplotlib.pyplot as plt
 
+COLOR_LIST = ["xkcd:blue violet", "xkcd:shamrock", "xkcd:coral"]
+
 
 class NHPoissonProcess:
     def __init__(self, mu, sig, xi, u, m):
@@ -97,42 +99,31 @@ class NHPoissonProcess:
         :param positions: The of events, typically obtained with gen_positions
         :return: Nothing, just plot
         """
-        fig = plt.figure(figsize=(18, 6))
-        ax = fig.add_subplot(121)
-        ax.set_title("Simulation of the NHPP in $[0;m]$ x $[u ; +\infty[$")
-        ax.vlines(times, [0], positions)
-        ax.hlines(
-            self.u,
-            0.0,
-            self.m,
-            colors="r")
-        ax.vlines(
-            0,
-            self.u / max(positions),
-            1,
-            transform=ax.get_xaxis_transform(),
-            colors="r")
+        fig = plt.figure(figsize=(12, 8))
+        ax = fig.add_subplot(111)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        
+        ax.vlines(times, [0], [self.u], linestyles = "dashed", colors=COLOR_LIST[0], alpha=0.5)
+        ax.vlines(times, [self.u], positions, colors=COLOR_LIST[0])
+        
+        ax.plot(times, positions, ".", alpha = 0.7, linewidth=1.5, ms = 10, color=COLOR_LIST[0])
+        
+        ax.hlines(self.u, 0.0, self.m, colors="r")
+        ax.vlines(0, self.u / max(positions), 1, transform=ax.get_xaxis_transform(), colors="r")
+        ax.vlines(self.m, self.u / max(positions), 1, transform=ax.get_xaxis_transform(), colors="r")
+        
+        ax.set_ylabel("Position", fontsize = 15)
+        ax.set_xlabel("Time", fontsize = 15)
 
-        ax.vlines(
-            self.m,
-            self.u / max(positions),
-            1,
-            transform=ax.get_xaxis_transform(),
-            colors="r")
+        ax.set_title("Number of generated points: " + str(len(positions)), fontsize=14)
 
-        ax.set(
-            xlabel="Time",
-            ylabel="Position")
-
-        fig.suptitle("Number of generated points: "
-                     + str(len(positions)), fontsize=14)
-
-        ax2 = fig.add_subplot(122)
-        QQplot = st.probplot(positions, dist=st.genpareto(c=self.xi,
-                                                          loc=self.u,
-                                                          scale=self.sig + self.xi * (self.u - self.mu)),
-                             fit=False, plot=plt)
-        ax2.set_title("QQ-Plot of Poisson process simulations")
+        # ax2 = fig.add_subplot(122)
+        # QQplot = st.probplot(positions, dist=st.genpareto(c=self.xi,
+        #                                                   loc=self.u,
+        #                                                   scale=self.sig + self.xi * (self.u - self.mu)),
+        #                      fit=False, plot=plt)
+        # ax2.set_title("QQ-Plot of Poisson process simulations")
 
     def get_param_m_update(self, m):
         """

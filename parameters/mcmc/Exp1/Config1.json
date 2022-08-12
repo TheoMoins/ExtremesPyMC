@@ -1,12 +1,12 @@
 {
-  "name": "Original param.",
+  "name": "Jeffreys on classical parameters with m=n",
 
-  "update_m": "",
+  "update_m": true,
   "step_method": "Metropolis",
-  "niter": 2000,
+  "niter": 10000,
   "orthogonal_param": false,
   "priors": {
-    "p1": "Jeffreys()",
+    "p1": "Jeffreys(u)",
     "p2": "Jeffreys()",
     "p3": "Jeffreys()"
   },

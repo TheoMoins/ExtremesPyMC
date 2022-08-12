@@ -1,5 +1,5 @@
 {
-  "name": "Jeffreys prior on orthogonal parameters",
+  "name": "Orthogonal param.",
 
   "update_m": "",
   "step_method": "NUTS",

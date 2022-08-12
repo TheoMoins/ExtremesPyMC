@@ -1,14 +1,13 @@
 {
-  "name": "Orthogonal param.",
+  "name": "GPD orthogonal param.",
 
   "update_m": "",
   "step_method": "Metropolis",
-  "niter": 2000,
+  "niter": 1000,
   "orthogonal_param": true,
   "priors": {
     "p1": "Jeffreys()",
-    "p2": "Jeffreys()",
-    "p3": "Jeffreys()"
+    "p2": "Jeffreys()"
   },
   "init_p1_by_u": true
 }

@@ -1,0 +1,14 @@
+{
+  "name": "Flat prior on orthogonal parameters",
+
+  "update_m": false,
+  "step_method": "Metropolis",
+  "niter": 10000,
+  "orthogonal_param": true,
+  "priors": {
+    "p1": "HalfFlat(u)",
+    "p2": "HalfFlat()",
+    "p3": "Flat()"
+  },
+  "init_p1_by_u": true
+}

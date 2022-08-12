@@ -1,10 +1,10 @@
 {
-  "name": "Orthogonal param.",
+  "name": "m in [m1,m2]",
 
-  "update_m": "",
-  "step_method": "Metropolis",
-  "niter": 2000,
-  "orthogonal_param": true,
+  "update_m": "sharkey",
+  "step_method": "NUTS",
+  "niter": 500,
+  "orthogonal_param": false,
   "priors": {
     "p1": "Jeffreys()",
     "p2": "Jeffreys()",
