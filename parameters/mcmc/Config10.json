@@ -1,5 +1,5 @@
 {
-  "name": "Orthogonal param.",
+  "name": "$\\lambda = 1000$",
 
   "update_m": "",
   "step_method": "Metropolis",

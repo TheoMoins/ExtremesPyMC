@@ -1,5 +1,5 @@
 {
-  "name": "PC prior",
+  "name": "$\\lambda = 10$",
 
   "update_m": "",
   "step_method": "Metropolis",
