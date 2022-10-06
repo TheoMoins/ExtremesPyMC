@@ -1,3 +1,4 @@
+import tty
 import numpy as np
 import pymc3 as pm
 import theano.tensor as tt
@@ -38,3 +39,6 @@ def gpd_logp(value, mu, sig, xi):
 
 def gpd_quantile(prob, mu, sig, xi):
     return mu + (sig/(xi+EPS))*(prob**(-(xi+EPS))-1)
+
+def return_level(r, mu, sig, xi):
+    return mu + (sig/(xi+EPS))*((-tt.log(1-1/r))**(-(xi+EPS))-1)

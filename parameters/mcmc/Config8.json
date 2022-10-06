@@ -1,9 +1,9 @@
 {
-  "name": "Orthogonal param.",
+  "name": "PC prior",
 
   "update_m": "",
-  "step_method": "NUTS",
-  "niter": 1000,
+  "step_method": "Metropolis",
+  "niter": 5000,
   "orthogonal_param": true,
   "priors": {
     "p1": "HalfFlat()",

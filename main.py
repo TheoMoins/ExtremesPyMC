@@ -14,14 +14,15 @@ from src.rhat_infinity import *
 
 poisson_params_directory = "parameters/poisson_simu/"
 
-poisson_config_list = ["sharkey_poisson_", "tony_poisson_", "negative_xi_"]
-# poisson_config_list = ["gpd_"]
+# poisson_config_list = ["positive_xi_", "null_xi_", "negative_xi_"]
+# poisson_config_list = ["positive_xi_"]
+poisson_config_list = ["gpd_"]
 
 mcmc_params_directory = "parameters/mcmc/"
 
-mcmc_configs = ["Config1", "Config2", "Config3"]
+# mcmc_configs = ["Config1", "Config2", "Config3"]
 # mcmc_configs = ["Config4", "Config5",  "Config6"]
-# mcmc_configs = ["GPDConfig1", "GPDConfig2"]
+mcmc_configs = ["GPDConfig1", "GPDConfig2"]
 
 # mcmc_configs = []
 # for filename in os.listdir(mcmc_params_directory):
@@ -112,15 +113,14 @@ for poisson_config in poisson_config_list:
     plot_autocorr(traces=traces, labels=names, var_names = var_names)
     plot_ess(traces=traces, labels=names, var_names = var_names)
 
-    if "Config3" in mcmc_configs and poisson_config == "sharkey_poisson_":
+    if "Config3" in mcmc_configs or "Config6" in mcmc_configs and poisson_config == "positive_xi_":
         plot_r_hat_x(traces=traces, labels=names, var_names = var_names, ymax = 1.032)
     else:
         plot_r_hat_x(traces=traces, labels=names, var_names = var_names)
 
-
 figs = [plt.figure(n) for n in plt.get_fignums()]
 for i, fig in enumerate(figs):
     config_idx = int(i//(len(figs)/len(poisson_config_list)))
-    fig.savefig("Figures/{}{}_Figure{}.pdf".format(poisson_config_list[config_idx], filename, i + 1))
+    fig.savefig("Figures/{}{}_Figure{}.pdf".format(poisson_config_list[config_idx], filename, i + 1), bbox_inches="tight")
     # plt.show()
 print("Done!")

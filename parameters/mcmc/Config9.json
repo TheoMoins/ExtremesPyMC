@@ -2,12 +2,12 @@
   "name": "Orthogonal param.",
 
   "update_m": "",
-  "step_method": "NUTS",
-  "niter": 1000,
+  "step_method": "Metropolis",
+  "niter": 5000,
   "orthogonal_param": true,
   "priors": {
     "p1": "HalfFlat()",
-    "p2": "Laplace(0,0.1)",
+    "p2": "Laplace(0,0.05)",
     "p3": "Flat(100)"
   },
   "init_p1_by_u": true

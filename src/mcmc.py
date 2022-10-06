@@ -4,7 +4,7 @@ import scipy as ss
 
 from pymc3.distributions import draw_values, generate_samples
 from src.priors import get_prior, need_potential, get_potential
-from src.densities import gpd_logp, gpd_quantile
+from src.densities import gpd_logp, return_level
 from src.poisson_process import sharkey_optimal_m
 
 from src.densities import EPS
@@ -26,7 +26,7 @@ def get_step(text):
 
 
 class PoissonMCMC:
-    def __init__(self, priors, step_method, niter, obs, u, m, quantiles, orthogonal_param=True):
+    def __init__(self, priors, step_method, niter, obs, u, m, period_range = None, orthogonal_param=True):
 
         self.priors = priors
         self.step_method = step_method
@@ -38,9 +38,7 @@ class PoissonMCMC:
         self.original_m = m
         self.m = m
 
-        self.q1 = quantiles[0]
-        self.q2 = quantiles[1]
-        self.q3 = quantiles[2]
+        self.r_range = period_range
 
         self.orthogonal_param = orthogonal_param
         self.model = pm.Model()
@@ -167,12 +165,8 @@ class PoissonMCMC:
                     mu_m = self.u
                     sig_m = pm.Deterministic("sig_m", (nu / (1 + xi)) )
 
-            q1r = pm.Deterministic("q1r",
-                                   gpd_quantile(prob=self.q1, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))
-            q2r = pm.Deterministic("q2r",
-                                   gpd_quantile(prob=self.q2, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))
-            q3r = pm.Deterministic("q3r",
-                                   gpd_quantile(prob=self.q3, mu=self.u, sig=sig_m + xi * (self.u - mu_m), xi=xi))
+            if self.r_range is not None:
+                q = pm.Deterministic("q", return_level(self.r_range, mu=mu_m, sig=sig_m, xi=xi))
 
             if verbose:
                 print(self.model.check_test_point())

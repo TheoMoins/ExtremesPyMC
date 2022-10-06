@@ -1,9 +1,9 @@
 {
-  "name": "Original param.",
+  "name": "m $\\in [m_1,m_2]$",
 
-  "update_m": "",
+  "update_m": "sharkey",
   "step_method": "Metropolis",
-  "niter": 2000,
+  "niter": 1000,
   "orthogonal_param": false,
   "priors": {
     "p1": "Jeffreys()",
