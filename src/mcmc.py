@@ -168,6 +168,8 @@ class PoissonMCMC:
             if self.r_range is not None:
                 q = pm.Deterministic("q", return_level(self.r_range, mu=mu_m, sig=sig_m, xi=xi))
 
+            w = pm.Deterministic("w", mu_m - sig_m / (xi+EPS))
+
             if verbose:
                 print(self.model.check_test_point())
 

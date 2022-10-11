@@ -6,9 +6,9 @@
   "niter": 5000,
   "orthogonal_param": true,
   "priors": {
-    "p1": "Jeffreys()",
+    "p1": "Jeffreys(0, 1)",
     "p2": "Jeffreys()",
-    "p3": "Jeffreys()"
+    "p3": "Jeffreys(-0.5, u)"
   },
   "init_p1_by_u": true
 }
