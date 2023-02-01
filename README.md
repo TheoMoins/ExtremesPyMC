@@ -4,7 +4,7 @@ This repository contains code for the experiments of the following preprint:
 
 T. Moins, J. Arbel, A. Dutfoy & S. Girard. (2022+): “Reparameterization of extreme value framework for improved Bayesian workflow” ([link](https://arxiv.org/abs/2210.05224))
 
-All experiments are done using PyMC3 and Arviz librairies
+All experiments are done using librairies PyMC3 and Arviz.
 
 # Content
 
