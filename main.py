@@ -20,7 +20,8 @@ poisson_config_list = ["gpd_"]
 
 mcmc_params_directory = "parameters/mcmc/"
 
-# mcmc_configs = ["Config1", "Config2", "Config3"]
+# mcmc_configs = ["Config1a", "Config1b", "Config1c", "Config1d"]
+# mcmc_configs = ["Config2a", "Config2b", "Config2c", "Config2d"]
 # mcmc_configs = ["Config4", "Config5",  "Config6"]
 mcmc_configs = ["GPDConfig1", "GPDConfig2"]
 
@@ -55,14 +56,6 @@ for poisson_config in poisson_config_list:
     print("Min: {:.3f}".format(np.min(obs)))
     print("Max: {:.3f}".format(np.max(obs)))
 
-    quantiles = (1/lam_obs, 1/(2*lam_obs), 1/(3*lam_obs))
-    print("Estimation of quantiles 1/{}, 1/{} and 1/{} ".format(int(lam_obs), 2*int(lam_obs), 3*int(lam_obs)))
-    sig_tilde = pp_params[3]+pp_params[4]*(pp_params[0]-pp_params[2])
-    real_q1 = gpd_quantile(prob=quantiles[0], mu=pp_params[0], sig=sig_tilde, xi=pp_params[4])
-    real_q2 = gpd_quantile(prob=quantiles[1], mu=pp_params[0], sig=sig_tilde, xi=pp_params[4])
-    real_q3 = gpd_quantile(prob=quantiles[2], mu=pp_params[0], sig=sig_tilde, xi=pp_params[4])
-    print("Theoretical values of quantiles: {:.3f}, {:.3f}, {:.3f}".format(real_q1, real_q2, real_q3))
-
     PP.plot_simulation(times=times, positions=obs)
 
     # MCMC
@@ -90,7 +83,7 @@ for poisson_config in poisson_config_list:
                 priors[2] = priors[2].replace("u", str(init_val))
 
         MCMC = PoissonMCMC(priors=priors, step_method=mcmc_params.step_method, niter=mcmc_params.niter,
-                           obs=obs, u=poisson_params.u, m=poisson_params.m, quantiles=quantiles,
+                           obs=obs, u=poisson_params.u, m=poisson_params.m,
                            orthogonal_param=mcmc_params.orthogonal_param)
         if mcmc_params.update_m != "":
             MCMC.update_m(update_arg=mcmc_params.update_m, xi=poisson_params.xi)
@@ -113,7 +106,7 @@ for poisson_config in poisson_config_list:
     plot_autocorr(traces=traces, labels=names, var_names = var_names)
     plot_ess(traces=traces, labels=names, var_names = var_names)
 
-    if "Config3" in mcmc_configs or "Config6" in mcmc_configs and poisson_config == "positive_xi_":
+    if "Config1c" in mcmc_configs or "Config2c" in mcmc_configs and poisson_config == "positive_xi_":
         plot_r_hat_x(traces=traces, labels=names, var_names = var_names, ymax = 1.032)
     else:
         plot_r_hat_x(traces=traces, labels=names, var_names = var_names)
