@@ -118,13 +118,6 @@ class NHPoissonProcess:
 
         ax.set_title("Number of generated points: " + str(len(positions)), fontsize=14)
 
-        # ax2 = fig.add_subplot(122)
-        # QQplot = st.probplot(positions, dist=st.genpareto(c=self.xi,
-        #                                                   loc=self.u,
-        #                                                   scale=self.sig + self.xi * (self.u - self.mu)),
-        #                      fit=False, plot=plt)
-        # ax2.set_title("QQ-Plot of Poisson process simulations")
-
     def get_param_m_update(self, m):
         """
         Return the value of mu and sigma corresponding to a scaling factor equal to m.

@@ -6,12 +6,12 @@ from sympy import var
 
 from src.rhat_infinity import *
 
-COLOR_LIST = ["xkcd:coral", 
-              "xkcd:shamrock", 
-              "xkcd:blue violet", 
-              "xkcd:cobalt",  
-              "xkcd:berry", 
-              "xkcd:tangerine", 
+COLOR_LIST = ["#0077BB", 
+              "#009988", 
+              "#EE7733", 
+              "#EE3377", 
+              "#33BBEE",
+              "xkcd:cobalt", 
               "xkcd:pastel blue"]
 
 def plot_trace(trace, var_names, title, real_value=None):

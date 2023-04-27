@@ -42,3 +42,6 @@ def gpd_quantile(prob, mu, sig, xi):
 
 def return_level(r, mu, sig, xi):
     return mu + (sig/(xi+EPS))*((-tt.log(1-1/r))**(-(xi+EPS))-1)
+
+def return_level_GPD(r, mu, sig, xi):
+    return mu + (sig/(xi+EPS))*(r**(xi+EPS)-1)

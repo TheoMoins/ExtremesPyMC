@@ -1,10 +1,11 @@
+# from tkinter import W
 import pymc3 as pm
 import theano.tensor as tt
 import scipy as ss
 
 from pymc3.distributions import draw_values, generate_samples
 from src.priors import get_prior, need_potential, get_potential
-from src.densities import gpd_logp, return_level
+from src.densities import gpd_logp, return_level, return_level_GPD
 from src.poisson_process import sharkey_optimal_m
 
 from src.densities import EPS
@@ -166,7 +167,9 @@ class PoissonMCMC:
                     sig_m = pm.Deterministic("sig_m", (nu / (1 + xi)) )
 
             if self.r_range is not None:
+                # q = pm.Deterministic("q", return_level_GPD(self.r_range, mu=mu_m, sig=sig_m, xi=xi))
                 q = pm.Deterministic("q", return_level(self.r_range, mu=mu_m, sig=sig_m, xi=xi))
+                # q0 = pm.Deterministic("q0", return_level(self.r_range, mu=mu_m, sig=sig_m, xi=0))
 
             w = pm.Deterministic("w", mu_m - sig_m / (xi+EPS))
 
@@ -197,7 +200,12 @@ class PoissonMCMC:
         with self.model:
             return pm.sample_prior_predictive(samples=nsamples)
 
-    def posterior_predictive_check(self, trace):
+    def posterior_predictive_check(self, trace, n_factor = None, progressbar=True):
         with self.model:
-            return pm.sample_posterior_predictive(trace)
+            pp_samples = pm.sample_posterior_predictive(trace, size=n_factor, progressbar=progressbar)["gpd"]
+            if n_factor is not None:
+                s1, s2, s3 = pp_samples.shape
+                pp_samples = pp_samples.reshape((s1, s2*s3))
+            return pp_samples
+
 

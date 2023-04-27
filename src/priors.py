@@ -43,6 +43,13 @@ def get_prior(text, variable):
             return pm.Normal(name=variable, mu=params[0], sigma=params[1], testval=params[2])
         else:
             return pm.Normal(name=variable, mu=params[0], sigma=params[1])
+    # Uniform prior:
+    elif "Unif" in text:
+        if len(params) == 2:
+            return pm.Uniform(name=variable, lower=params[0], upper=params[1], testval=(params[0]+params[1])/2)
+        else:
+            return pm.Uniform(name=variable)
+    # Laplace prior:
     elif "Laplace" in text:
         if len(params) == 3:
             return pm.Laplace(name=variable, mu=params[0], b=params[1], testval=params[2])
